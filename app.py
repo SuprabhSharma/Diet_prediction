@@ -10,42 +10,24 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------- HEALTH BACKGROUND STYLE ----------
+
+# ---------- CLEAN BACKGROUND ----------
 st.markdown("""
 <style>
-
-/* Clean professional background */
 .stApp {
     background: linear-gradient(135deg,#f8fbf9,#eef6f2);
 }
-
-/* Title */
 .health-title {
     font-size:60px;
     font-weight:800;
     color:#0b7a55;
     text-align:center;
-    letter-spacing:1px;
 }
-
-/* Subtitle */
 .health-sub {
     font-size:22px;
     text-align:center;
     color:#444;
-    margin-bottom:25px;
 }
-
-/* Input cards */
-[data-testid="stNumberInput"],
-[data-testid="stSelectbox"] {
-    background:white;
-    padding:8px;
-    border-radius:12px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.06);
-}
-
-/* Button styling */
 .stButton>button {
     background: linear-gradient(90deg,#0b7a55,#34c38f);
     color:white;
@@ -54,46 +36,30 @@ st.markdown("""
     height:3em;
     width:100%;
 }
-
-/* Result box */
 .result-box {
     padding:20px;
     border-radius:14px;
     background:white;
     border-left:6px solid #34c38f;
-    box-shadow:0px 5px 18px rgba(0,0,0,0.08);
 }
-
 </style>
 """, unsafe_allow_html=True)
 
 
-
-# ---------- LOAD MODEL + PREPROCESSORS ----------
+# ---------- LOAD MODEL ----------
 model = joblib.load("diet_model.pkl")
 encoder = joblib.load("label_encoder.pkl")
 scaler = joblib.load("scaler.pkl")
 
 
 # ---------- HEADER ----------
-st.markdown(
-    '<p class="health-title">🥗 DIET HEALTH PREDICTOR</p>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<p class="health-sub">'
-    'Personalized nutrition recommendation based on your health data'
-    '</p>',
-    unsafe_allow_html=True
-)
+st.markdown('<p class="health-title">🥗 DIET HEALTH PREDICTOR</p>', unsafe_allow_html=True)
+st.markdown('<p class="health-sub">Personalized nutrition recommendation based on your health data</p>', unsafe_allow_html=True)
 
 st.divider()
 
 
 # ---------- NUMERIC INPUTS ----------
-st.subheader("🧾 Health Details")
-
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -104,12 +70,12 @@ with col1:
 
 with col2:
     calories = st.number_input("Daily Calories", 1000, 4000, 2000)
-    cholesterol = st.number_input("Cholesterol (mg/dL)", 100, 300, 180)
+    cholesterol = st.number_input("Cholesterol", 100, 300, 180)
     bp = st.number_input("Blood Pressure", 80, 200, 120)
-    glucose = st.number_input("Glucose Level", 60, 200, 100)
+    glucose = st.number_input("Glucose", 60, 200, 100)
 
 with col3:
-    exercise = st.number_input("Exercise Hours/Week", 0.0, 20.0, 3.0)
+    exercise = st.number_input("Exercise Hours", 0.0, 20.0, 3.0)
     adherence = st.number_input("Diet Adherence %", 0.0, 100.0, 60.0)
     imbalance = st.number_input("Nutrient Imbalance Score", 0.0, 10.0, 3.0)
 
@@ -117,8 +83,6 @@ st.divider()
 
 
 # ---------- CATEGORICAL INPUTS ----------
-st.subheader("🍽 Lifestyle Information")
-
 col4, col5, col6 = st.columns(3)
 
 with col4:
@@ -127,11 +91,11 @@ with col4:
 
 with col5:
     severity = st.selectbox("Severity", ["Low", "Medium"])
-    activity = st.selectbox("Physical Activity", ["Low", "Moderate"])
+    activity = st.selectbox("Activity", ["Low", "Moderate"])
 
 with col6:
     allergy = st.selectbox("Allergy", ["None", "Peanuts"])
-    cuisine = st.selectbox("Preferred Cuisine", ["Indian", "Italian", "Mexican"])
+    cuisine = st.selectbox("Cuisine", ["Indian", "Italian", "Mexican"])
     bmi_category = st.selectbox("BMI Category", ["Normal", "Overweight", "Obese"])
 
 st.divider()
@@ -170,11 +134,9 @@ if st.button("🔍 Predict Diet Recommendation"):
     }
 
     input_df = pd.DataFrame([input_dict])
-
-    # Match training feature order
     input_df = input_df.reindex(columns=model.feature_names_in_, fill_value=0)
 
-    # Apply scaler properly
+    # Apply scaling
     num_cols = [
         "Age","Weight_kg","Height_cm","BMI",
         "Daily_Caloric_Intake","Cholesterol_mg/dL",
@@ -185,80 +147,51 @@ if st.button("🔍 Predict Diet Recommendation"):
 
     input_df[num_cols] = scaler.transform(input_df[num_cols])
 
-    # Predict
+    # Predict diet
     prediction = model.predict(input_df)
     diet = encoder.inverse_transform(prediction)[0]
 
-    # Output
     st.markdown(
-        f"""
-        <div class="result-box">
-        <h2>Recommended Diet: {diet}</h2>
-        </div>
-        """,
+        f"<div class='result-box'><h2>Recommended Diet: {diet}</h2></div>",
         unsafe_allow_html=True
     )
 
- # ---------- DIET GUIDANCE ----------
-diet_guidance = {
+    # ---------- DIET GUIDANCE ----------
+    diet_guidance = {
 
-    "Low_Fat": {
-        "eat": """
-🥗 Recommended Foods:
-• Green vegetables (spinach, broccoli, beans)
-• Fruits (apple, papaya, guava)
-• Whole grains (roti, brown rice)
-• Eggs (boiled preferred)
-• Low-fat milk / curd
-""",
-        "avoid": """
-❌ Avoid:
-• Fried food / butter / ghee excess
-• High salt pickles
-• Fast food & packaged snacks
-• Cream-based items
-"""
-    },
+        "Low_Fat": {
+            "eat": """🥗 Recommended Foods:
+• Green vegetables, fruits  
+• Whole grains  
+• Boiled eggs  
+• Low-fat dairy""",
+            "avoid": """❌ Avoid:
+• Fried food  
+• Butter/ghee excess  
+• High salt pickles"""
+        },
 
-    "Low_Carb": {
-        "eat": """
-🥗 Recommended Foods:
-• Leafy vegetables
-• Paneer, tofu, boiled eggs
-• Nuts & seeds
-• Salads with olive oil
-• Soups without cornflour
-""",
-        "avoid": """
-❌ Avoid:
-• White rice / sugar / sweets
-• Potatoes excess
-• Bakery items
-• Sweetened beverages
-"""
-    },
+        "Low_Carb": {
+            "eat": """🥗 Recommended Foods:
+• Leafy vegetables  
+• Paneer/tofu/eggs  
+• Nuts & seeds""",
+            "avoid": """❌ Avoid:
+• Rice, sugar, sweets  
+• Bakery foods"""
+        },
 
-    "Balanced": {
-        "eat": """
-🥗 Recommended Foods:
-• Vegetables & seasonal fruits
-• Dal, paneer, tofu, eggs
-• Whole grains
-• Milk / curd
-• Moderate healthy salts
-""",
-        "avoid": """
-❌ Avoid:
-• Excess salt
-• Processed foods
-• Too much sugar
-• Deep fried foods
-"""
+        "Balanced": {
+            "eat": """🥗 Recommended Foods:
+• Vegetables & fruits  
+• Dal, paneer, eggs  
+• Whole grains""",
+            "avoid": """❌ Avoid:
+• Junk food  
+• Excess salt/sugar"""
+        }
     }
-}
 
-st.subheader("🥦 Diet Guidance")
-
-st.markdown(diet_guidance[diet]["eat"])
-st.markdown(diet_guidance[diet]["avoid"])
-
+    st.subheader("🥦 Diet Guidance")
+    st.markdown(diet_guidance[diet]["eat"])
+    st.markdown(diet_guidance[diet]["avoid"])
