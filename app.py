@@ -93,6 +93,7 @@ with col6:
     bmi_category = st.selectbox("BMI Category", ["Normal", "Overweight", "Obese"])
 
 st.divider()
+ddiet = None   # keep this before button block
 
 # ---------- PREDICTION ----------
 if st.button("🔍 Predict Diet Recommendation"):
@@ -162,6 +163,9 @@ if st.button("🔍 Predict Diet Recommendation"):
         }
     }
 
-    st.subheader("🥦 Diet Guidance")
-    st.write(diet_guidance[diet]["eat"])
-    st.write(diet_guidance[diet]["avoid"])
+    if diet:
+        st.subheader("🥦 Diet Guidance")
+        st.write(diet_guidance[diet]["eat"])
+        st.write(diet_guidance[diet]["avoid"])
+
+
