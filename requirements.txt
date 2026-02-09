@@ -1,15 +1,6 @@
-<<<<<<< HEAD
-streamlit
-pandas
-numpy
-scikit-learn
-joblib
-xgboost
-=======
-streamlit
-pandas
-numpy
-scikit-learn
-joblib
-xgboost
->>>>>>> dbb05f7 (Initial commit)
+streamlit==1.32.0
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+joblib==1.4.2
+xgboost==1.7.6
