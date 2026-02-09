@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 streamlit
 pandas
 numpy
 scikit-learn
 joblib
 xgboost
+=======
+streamlit
+pandas
+numpy
+scikit-learn
+joblib
+xgboost
+>>>>>>> dbb05f7 (Initial commit)
